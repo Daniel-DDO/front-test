@@ -147,7 +147,7 @@
 
         .alert-item {
             background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); padding: 20px;
-            border-radius: 15px; position: relative; overflow: hidden; transition: 0.3s;
+            border-radius: 15px; position: relative; overflow: hidden; transition: 0.3s; display: flex; flex-direction: column;
         }
 
         .alert-item:hover { transform: scale(1.02); background: rgba(0,0,0,0.5); }
@@ -163,7 +163,13 @@
 
         .alert-meta { display: flex; flex-wrap: wrap; gap: 15px; font-size: 12px; color: var(--text-muted); margin-bottom: 12px; font-weight: 600; }
         .alert-meta i { color: var(--accent); }
-        .alert-desc { font-size: 14px; color: #ddd; line-height: 1.6; font-style: italic; background: rgba(255,255,255,0.02); padding: 12px; border-radius: 8px; }
+        
+        .alert-desc {
+            font-size: 14px; color: #ddd; line-height: 1.6; font-style: italic;
+            background: rgba(255,255,255,0.02); padding: 12px; border-radius: 8px;
+            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+            overflow: hidden; text-overflow: ellipsis; flex-grow: 1;
+        }
 
         .pulse-marker { width: 20px; height: 20px; border-radius: 50%; background: var(--high); box-shadow: 0 0 15px var(--high); animation: pulse 1.5s infinite; border: 2px solid #fff; }
 
@@ -271,22 +277,22 @@
         };
 
         const comentariosAlto = [
-            "Fui seguida por dois homens em uma moto preta saindo da estação.",
-            "Tentativa de assalto a mão armada na rua principal, consegui correr.",
-            "Grupo cercando mulheres na saída do terminal, evitem a área urgente.",
-            "Sofri assédio físico no ponto de ônibus, local muito deserto."
+            "Fui seguida por dois homens em uma moto preta saindo da praia. Entrei numa padaria pra pedir ajuda, mas os caras ficaram me esperando lá fora.",
+            "Tentativa de assalto a mão armada na rua principal, consegui correr e me esconder no estacionamento de um supermercado próximo.",
+            "Grupo cercando mulheres na saída do terminal, evitem a área urgente. Estão abordando de forma muito agressiva e tentando puxar bolsas.",
+            "Sofri assédio físico no ponto de ônibus, local muito deserto e com iluminação péssima, fiquei com muito medo de voltar."
         ];
         
         const comentariosMedio = [
-            "Homem com comportamento muito suspeito observando quem passa na esquina.",
-            "Carro rondando devagar pela rua várias vezes, placa não identificada.",
-            "Pessoas usando drogas e bloqueando a calçada, intimidação verbal."
+            "Homem com comportamento muito suspeito observando quem passa na esquina de forma fixa, já faz mais de trinta minutos que ele está parado no mesmo lugar.",
+            "Carro rondando devagar pela rua várias vezes, placa não identificada. Parece estar observando as casas ou quem está voltando do trabalho.",
+            "Pessoas usando drogas e bloqueando a calçada, intimidação verbal forte sempre que alguma mulher tenta passar sozinha."
         ];
         
         const comentariosBaixo = [
-            "Rua completamente sem luz, os postes estão todos apagados hoje.",
-            "Terreno baldio com mato alto, muita insegurança para passar a pé.",
-            "Pouca movimentação de pessoas, clima estranho na via."
+            "Rua completamente sem luz, os postes estão todos apagados hoje, gerando uma sensação enorme de insegurança para quem precisa cruzar a praça.",
+            "Terreno baldio com mato alto, muita insegurança para passar a pé, além de não ter movimento nenhum de carros neste horário.",
+            "Pouca movimentação de pessoas, clima estranho na via, recomendo desviarem o caminho por precaução caso estejam desacompanhadas."
         ];
 
         function generateMockData(count) {
@@ -354,7 +360,7 @@
                         <span><i class="fa-solid fa-calendar"></i> ${item.data}</span>
                         <span><i class="fa-solid fa-clock"></i> ${item.hora}</span>
                     </div>
-                    <div class="alert-desc">"${item.comentario}"</div>
+                    <div class="alert-desc" title="${item.comentario}">"${item.comentario}"</div>
                 </div>
             `;
         }
