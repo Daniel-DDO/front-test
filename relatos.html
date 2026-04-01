@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>togetHER - Todos os Relatos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3a067f;
+            --accent: #ff4f7a;
+            --bg-dark: #0f0518;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f4f6f9;
+            --text-muted: #a09eb0;
+            --high: #ff4f7a;
+            --medium: #ff9f43;
+            --low: #feca57;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; outline: none; }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at top right, rgba(58, 6, 127, 0.3), transparent 40%),
+                              radial-gradient(circle at bottom left, rgba(255, 79, 122, 0.15), transparent 40%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+
+        .sidebar {
+            width: 280px; background: rgba(15, 5, 24, 0.9); backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border); padding: 30px 20px;
+            display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 1000;
+        }
+
+        .brand {
+            display: flex; align-items: center; gap: 15px; font-size: 28px; font-weight: 800;
+            margin-bottom: 50px; text-transform: lowercase; letter-spacing: -1px; animation: fadeInDown 0.8s ease;
+        }
+
+        .brand img {
+            width: 50px; height: 50px; border-radius: 15px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            padding: 2px; box-shadow: 0 0 20px rgba(255, 79, 122, 0.3);
+        }
+
+        .brand span { color: #fff; }
+        .brand span strong { color: var(--accent); text-transform: uppercase; }
+
+        .nav-links { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+        .nav-links li { opacity: 0; animation: slideInLeft 0.5s ease forwards; }
+        .nav-links li:nth-child(1) { animation-delay: 0.1s; }
+        .nav-links li:nth-child(2) { animation-delay: 0.2s; }
+        
+        .nav-links a {
+            display: flex; align-items: center; gap: 15px; padding: 15px; color: var(--text-muted);
+            text-decoration: none; border-radius: 12px; font-weight: 600; transition: 0.3s;
+            border: 1px solid transparent; cursor: pointer;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background: var(--glass-bg); color: #fff; border-color: var(--glass-border);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); transform: translateX(5px);
+        }
+
+        .nav-links a.active i { color: var(--accent); }
+
+        .disclaimer {
+            margin-top: auto; background: linear-gradient(135deg, rgba(58, 6, 127, 0.2), rgba(255, 79, 122, 0.1));
+            border: 1px solid var(--glass-border); padding: 20px; border-radius: 15px; font-size: 13px;
+            color: var(--text-muted); line-height: 1.5; animation: fadeInUp 0.8s ease;
+        }
+
+        .main-content { margin-left: 280px; padding: 40px; width: calc(100% - 280px); }
+
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; animation: fadeInDown 0.5s ease; }
+        .title-area h1 { font-size: 32px; font-weight: 800; background: linear-gradient(to right, #fff, var(--text-muted)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .title-area p { color: var(--accent); font-weight: 600; font-size: 14px; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px; }
+
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 2.5fr; gap: 30px; }
+
+        .panel {
+            background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: blur(10px);
+            border-radius: 20px; padding: 25px; display: flex; flex-direction: column;
+            opacity: 0; animation: fadeIn 0.8s ease forwards 0.2s; max-height: calc(100vh - 150px);
+        }
+
+        .panel h2 { font-size: 18px; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+
+        .ranking-list { display: flex; flex-direction: column; gap: 15px; overflow-y: auto; padding-right: 5px; }
+        .ranking-item {
+            display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3);
+            padding: 15px; border-radius: 12px; border: 1px solid var(--glass-border); position: relative; overflow: hidden;
+            opacity: 0; transform: translateY(20px); animation: fadeInUp 0.5s ease forwards; flex-shrink: 0;
+        }
+        .ranking-item:nth-child(1) { animation-delay: 0.3s; }
+        .ranking-item:nth-child(2) { animation-delay: 0.4s; }
+        .ranking-item:nth-child(3) { animation-delay: 0.5s; }
+        .ranking-item:nth-child(4) { animation-delay: 0.6s; }
+        .ranking-item:nth-child(5) { animation-delay: 0.7s; }
+        
+        .ranking-item .bairro { font-weight: 600; font-size: 15px; z-index: 2; }
+        .ranking-item .badge { background: var(--high); padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 800; z-index: 2; }
+        .ranking-bar { position: absolute; left: 0; top: 0; height: 100%; background: linear-gradient(90deg, rgba(255, 79, 122, 0.2), transparent); z-index: 1; border-radius: 12px; transition: 1s ease; width: 0; }
+
+        .reports-container { overflow-y: auto; padding-right: 15px; height: 100%; display: flex; flex-direction: column; }
+        
+        .reports-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; align-items: start; }
+
+        .alert-item {
+            background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); padding: 20px;
+            border-radius: 15px; position: relative; overflow: hidden; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex; flex-direction: column; gap: 12px; cursor: pointer; height: auto;
+            opacity: 0; transform: scale(0.95); animation: scaleUp 0.5s ease forwards;
+        }
+
+        .alert-item:hover { transform: translateY(-5px) scale(1.02); background: rgba(0,0,0,0.6); border-color: var(--accent); box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        .alert-item::after { content: ''; position: absolute; top: 0; right: 0; width: 100%; height: 2px; }
+        .level-Alto::after { background: var(--high); box-shadow: 0 0 10px var(--high); }
+        .level-Médio::after { background: var(--medium); box-shadow: 0 0 10px var(--medium); }
+        .level-Baixo::after { background: var(--low); box-shadow: 0 0 10px var(--low); }
+
+        .alert-header { display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 15px; }
+        .level-Alto .alert-header { color: var(--high); }
+        .level-Médio .alert-header { color: var(--medium); }
+        .level-Baixo .alert-header { color: var(--low); }
+
+        .alert-meta { display: flex; flex-wrap: wrap; gap: 15px; font-size: 12px; color: var(--text-muted); font-weight: 600; }
+        .alert-meta i { color: var(--accent); }
+        
+        .alert-desc {
+            font-size: 14px; color: #ddd; line-height: 1.6; font-style: italic; background: rgba(255,255,255,0.02);
+            padding: 15px; border-radius: 8px; word-wrap: break-word; overflow-wrap: break-word; display: block; height: auto;
+        }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 2000;
+            opacity: 0; visibility: hidden; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        
+        .modal-content {
+            background: linear-gradient(145deg, var(--bg-dark), #160826); border: 1px solid var(--glass-border); padding: 40px; border-radius: 20px;
+            width: 90%; max-width: 650px; position: relative; transform: scale(0.8) translateY(30px); opacity: 0; 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+        }
+        .modal-overlay.active .modal-content { transform: scale(1) translateY(0); opacity: 1; }
+        
+        .modal-close { position: absolute; top: 20px; right: 25px; background: rgba(255,255,255,0.05); border: none; color: #fff; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; }
+        .modal-close:hover { background: var(--accent); transform: rotate(90deg); }
+        
+        .modal-header { font-size: 24px; font-weight: 800; margin-bottom: 25px; display: flex; align-items: center; gap: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .modal-info-box { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; border: 1px solid var(--glass-border); transition: 0.3s; }
+        .modal-info-box:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
+        .modal-info-box span { display: block; font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 1px; }
+        .modal-info-box strong { font-size: 15px; color: #fff; }
+        
+        .modal-full-desc { background: rgba(255, 79, 122, 0.05); border-left: 4px solid var(--accent); padding: 25px; border-radius: 0 12px 12px 0; font-size: 16px; line-height: 1.7; font-style: italic; color: #eee; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInLeft { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes scaleUp { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        
+        @media (max-width: 1024px) { .dashboard-grid { grid-template-columns: 1fr; } .panel { max-height: none; } }
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; position: relative; padding: 20px; border-right: none; border-bottom: 1px solid var(--glass-border); }
+            .brand { margin-bottom: 20px; justify-content: center; }
+            .nav-links { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+            .disclaimer { display: none; }
+            .main-content { margin-left: 0; width: 100%; padding: 20px; }
+            .reports-grid { grid-template-columns: 1fr; }
+            .modal-grid { grid-template-columns: 1fr; }
+            .modal-content { padding: 25px; }
+            .modal-header { font-size: 20px; }
+            .reports-container { padding-right: 0; overflow-y: visible; height: auto; }
+            .panel { max-height: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar">
+        <div class="brand">
+            <img src="mulher.png" alt="Logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/4140/4140048.png'">
+            <span>toget<strong>HER</strong></span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html"><i class="fa-solid fa-earth-americas"></i> Radar Global</a></li>
+            <li><a href="relatos.html" class="active"><i class="fa-solid fa-layer-group"></i> Todos os Relatos</a></li>
+        </ul>
+        <div class="disclaimer">
+            <strong>Transparência Pública</strong><br><br>
+            Os dados apresentados refletem relatos das mulheres. O acesso é livre para conscientização de toda a sociedade metropolitana.
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <header class="top-bar">
+            <div class="title-area">
+                <h1>Banco de Relatos da Comunidade</h1>
+                <p><i class="fa-solid fa-database"></i> Detalhamento e Ocorrências Recentes (Últimos 5 dias)</p>
+            </div>
+        </header>
+
+        <div class="dashboard-grid">
+            <div class="panel">
+                <h2><i class="fa-solid fa-fire"></i> Zonas de Maior Risco</h2>
+                <div class="ranking-list" id="ranking-list"></div>
+            </div>
+
+            <div class="panel">
+                <h2><i class="fa-solid fa-list-check"></i> Histórico Completo de Ocorrências</h2>
+                <div class="reports-container">
+                    <div class="reports-grid" id="full-feed"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal-content" id="modal-content-box">
+            <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-header" id="modal-title">Detalhes do Relato</div>
+            <div class="modal-grid">
+                <div class="modal-info-box"><span>Bairro / Zona</span><strong id="modal-bairro"></strong></div>
+                <div class="modal-info-box"><span>Data e Hora</span><strong id="modal-data"></strong></div>
+                <div class="modal-info-box"><span>Tipo de Abordagem</span><strong id="modal-tipo"></strong></div>
+                <div class="modal-info-box"><span>Polícia Acionada?</span><strong id="modal-policia"></strong></div>
+                <div class="modal-info-box"><span>Envolvidos Reportados</span><strong id="modal-envolvidos"></strong></div>
+                <div class="modal-info-box"><span>Status do Local</span><strong id="modal-status"></strong></div>
+            </div>
+            <div class="modal-full-desc" id="modal-desc"></div>
+        </div>
+    </div>
+
+    <script>
+        const bairrosLista = [
+            "Dois Irmãos", "Torre", "Barro", "Tejipió", "Beberibe", "Iputinga", "Madalena", "Boa Viagem",
+            "Pina", "Estância", "Coque", "São José", "Santo Amaro", "Ibura", "Bairro Novo", "Rio Doce",
+            "Peixinhos", "Cavaleiro", "Piedade", "Prazeres"
+        ];
+
+        const comentariosAlto = [
+            "Fui seguida por dois homens em uma moto preta saindo da praia. Entrei numa padaria pra pedir ajuda, mas os caras ficaram me esperando lá fora. Muito assustador, evitem essa rua após as 18h.",
+            "Tentativa de assalto a mão armada na rua principal. O cara desceu da garupa e mandou entregar o celular, consegui correr e me esconder no estacionamento de um supermercado próximo.",
+            "Grupo cercando mulheres na saída do terminal, evitem a área urgente. Estão abordando de forma muito agressiva, fazendo intimidação psicológica.",
+            "Sofri assédio físico no ponto de ônibus. O local é extremamente deserto e com iluminação péssima, fiquei com muito medo de voltar para casa sozinha.",
+            "Percebi que um carro prata sem placa estava acompanhando meus passos desde que desci do ônibus. Tive que ligar para o meu irmão vir me buscar.",
+            "Arrastão na avenida principal, um grupo enorme desceu correndo e levando tudo. Escondi minhas coisas e entrei em um comércio correndo."
+        ];
+        
+        const comentariosMedio = [
+            "Homem com comportamento muito suspeito observando quem passa na esquina de forma fixa, já faz mais de trinta minutos que ele está parado.",
+            "Carro rondando devagar pela rua várias vezes, com os vidros abaixados. Parece estar observando as casas ou quem está voltando do trabalho.",
+            "Pessoas usando drogas e bloqueando a calçada, intimidação verbal forte sempre que alguma mulher tenta passar sozinha.",
+            "Motoqueiro parou na esquina e ficou me chamando com assobios, não tirou o capacete e acelerou quando eu peguei o celular.",
+            "Grupo de adolescentes jogando piadas e bloqueando a passagem perto da praça. Tive que desviar pelo meio da rua correndo risco."
+        ];
+        
+        const comentariosBaixo = [
+            "Rua completamente sem luz, os postes estão todos apagados hoje, gerando uma sensação enorme de insegurança.",
+            "Terreno baldio com mato muito alto invadindo a calçada, o que cria pontos cegos terríveis. Muita insegurança para passar a pé à noite.",
+            "Pouca movimentação de pessoas, clima muito estranho na via. A rua paralela é mais movimentada, optem por lá.",
+            "Asfalto cedendo e calçada quebrada, forçando a gente a andar no meio da rua no escuro. Péssimo para voltar do terminal de noite.",
+            "Câmeras de segurança da rua estão todas viradas ou quebradas, a associação avisou que a manutenção vai demorar semanas."
+        ];
+
+        const tiposAbordagem = ["A pé", "Moto", "Carro", "N/A"];
+        const statusLocal = ["Perigo Iminente", "Atenção Necessária", "Alerta Preventivo", "Observação Contínua"];
+
+        function generateMockData(count) {
+            const data = [];
+            const niveis = ["Alto", "Médio", "Baixo"];
+            const icones = {"Alto": "fa-skull-crossbones", "Médio": "fa-eye", "Baixo": "fa-lightbulb"};
+            const now = new Date();
+            
+            for (let i = 0; i < count; i++) {
+                const nivel = niveis[Math.floor(Math.random() * niveis.length)];
+                const bairro = bairrosLista[Math.floor(Math.random() * bairrosLista.length)];
+                
+                let comentario = "";
+                if (nivel === "Alto") comentario = comentariosAlto[Math.floor(Math.random() * comentariosAlto.length)];
+                if (nivel === "Médio") comentario = comentariosMedio[Math.floor(Math.random() * comentariosMedio.length)];
+                if (nivel === "Baixo") comentario = comentariosBaixo[Math.floor(Math.random() * comentariosBaixo.length)];
+                
+                const randomOffset = Math.random() * (5 * 24 * 60 * 60 * 1000);
+                const eventDate = new Date(now.getTime() - randomOffset);
+                
+                const hour = String(eventDate.getHours()).padStart(2, '0');
+                const min = String(eventDate.getMinutes()).padStart(2, '0');
+                const day = String(eventDate.getDate()).padStart(2, '0');
+                const month = String(eventDate.getMonth() + 1).padStart(2, '0');
+                const year = eventDate.getFullYear();
+                
+                const dataStr = `${day}/${month}/${year}`;
+                const timestamp = eventDate.getTime();
+
+                const envolvidos = Math.floor(Math.random() * 4) + 1;
+                const policia = Math.random() > 0.7 ? "Sim" : "Não";
+                const tipo = tiposAbordagem[Math.floor(Math.random() * tiposAbordagem.length)];
+                const status = statusLocal[Math.floor(Math.random() * statusLocal.length)];
+
+                data.push({
+                    id: i, bairro, nivel, comentario, hora: `${hour}:${min}`, data: dataStr,
+                    icone: icones[nivel], timestamp, envolvidos: `${envolvidos} pessoa(s)`, policia, tipo, status
+                });
+            }
+            data.sort((a, b) => b.timestamp - a.timestamp);
+            return data;
+        }
+
+        const mockData = generateMockData(35);
+
+        function renderRanking() {
+            const rankingList = document.getElementById('ranking-list');
+            const counts = {};
+            
+            mockData.forEach(item => {
+                if (!counts[item.bairro]) counts[item.bairro] = { total: 0, alto: 0 };
+                counts[item.bairro].total++;
+                if (item.nivel === "Alto") counts[item.bairro].alto++;
+            });
+
+            const sortedBairros = Object.keys(counts).sort((a, b) => {
+                if (counts[b].alto !== counts[a].alto) return counts[b].alto - counts[a].alto;
+                return counts[b].total - counts[a].total;
+            }).slice(0, 10);
+
+            let maxAlto = counts[sortedBairros[0]]?.alto || 1;
+
+            sortedBairros.forEach(bairro => {
+                const percent = (counts[bairro].alto / maxAlto) * 100;
+                rankingList.innerHTML += `
+                    <div class="ranking-item">
+                        <div class="ranking-bar" style="width: ${percent}%"></div>
+                        <span class="bairro">${bairro}</span>
+                        <span class="badge">${counts[bairro].alto} Alertas Altos</span>
+                    </div>
+                `;
+            });
+            
+            setTimeout(() => {
+                document.querySelectorAll('.ranking-bar').forEach(el => {
+                    const w = el.style.width;
+                    el.style.width = '0';
+                    setTimeout(() => el.style.width = w, 100);
+                });
+            }, 500);
+        }
+
+        function createAlertCard(item, index) {
+            const colorClass = `level-${item.nivel}`;
+            const delay = 0.05 * (index % 10);
+            return `
+                <div class="alert-item ${colorClass}" style="animation-delay: ${delay}s" onclick='openModal(${JSON.stringify(item)})'>
+                    <div class="alert-header"><span><i class="fa-solid ${item.icone}"></i> Relato de Risco ${item.nivel}</span></div>
+                    <div class="alert-meta">
+                        <span><i class="fa-solid fa-map-pin"></i> ${item.bairro}</span>
+                        <span><i class="fa-solid fa-calendar"></i> ${item.data}</span>
+                        <span><i class="fa-solid fa-clock"></i> ${item.hora}</span>
+                    </div>
+                    <div class="alert-desc">"${item.comentario}"</div>
+                </div>
+            `;
+        }
+
+        function renderFeeds() {
+            const fullFeed = document.getElementById('full-feed');
+            fullFeed.innerHTML = '';
+            mockData.forEach((item, idx) => fullFeed.innerHTML += createAlertCard(item, idx));
+        }
+
+        function openModal(item) {
+            document.getElementById('modal-title').innerHTML = `<i class="fa-solid ${item.icone}"></i> Risco ${item.nivel}`;
+            document.getElementById('modal-title').style.color = item.nivel === 'Alto' ? '#ff4f7a' : item.nivel === 'Médio' ? '#ff9f43' : '#feca57';
+            document.getElementById('modal-bairro').innerText = item.bairro;
+            document.getElementById('modal-data').innerText = `${item.data} às ${item.hora}`;
+            document.getElementById('modal-tipo').innerText = item.tipo;
+            document.getElementById('modal-policia').innerText = item.policia;
+            document.getElementById('modal-envolvidos').innerText = item.envolvidos;
+            document.getElementById('modal-status').innerText = item.status;
+            document.getElementById('modal-desc').innerText = `"${item.comentario}"`;
+            
+            document.getElementById('modal-overlay').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.remove('active');
+        }
+
+        document.getElementById('modal-overlay').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        window.onload = () => {
+            renderRanking();
+            renderFeeds();
+        };
+    </script>
+</body>
+</html>
